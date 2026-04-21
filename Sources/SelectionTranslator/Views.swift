@@ -5,6 +5,7 @@ private let formSecondaryText = Color.secondary
 struct ResultPanelView: View {
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject var appState: AppState
+    @State private var isOriginalExpanded = false
 
     private var isDarkMode: Bool { colorScheme == .dark }
     private var cardPrimaryText: Color { isDarkMode ? .white : Color(red: 0.10, green: 0.10, blue: 0.11) }
@@ -97,6 +98,9 @@ struct ResultPanelView: View {
         .frame(width: 430)
         .fixedSize(horizontal: false, vertical: true)
         .background(Color.clear)
+        .onChange(of: appState.latestResult?.originalText) { _ in
+            isOriginalExpanded = false
+        }
     }
 
     private var permissionBanner: some View {
@@ -169,6 +173,10 @@ struct ResultPanelView: View {
                 translationBlock(result.translatedText)
             }
 
+            if shouldShowExpandedOriginal(for: result) && isOriginalExpanded {
+                expandedOriginalBlock(result.originalText)
+            }
+
             if let notes = result.notes, !notes.isEmpty {
                 Text(notes)
                     .font(.system(size: 11))
@@ -198,9 +206,18 @@ struct ResultPanelView: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                 if text.count > 56 || text.contains("\n") {
-                    Text("原文预览")
+                    Button {
+                        isOriginalExpanded.toggle()
+                    } label: {
+                        HStack(spacing: 5) {
+                            Text(isOriginalExpanded ? "收起原文" : "展开原文")
+                            Image(systemName: isOriginalExpanded ? "chevron.up" : "chevron.down")
+                                .font(.system(size: 9, weight: .semibold))
+                        }
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(cardSecondaryText)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -266,6 +283,23 @@ struct ResultPanelView: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
+    private func expandedOriginalBlock(_ text: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("完整原文")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(cardSecondaryText)
+
+            Text(text)
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(cardPrimaryText)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(cardSoftSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
     private func dictionaryMeaningBlock(_ text: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(parsedMeaningLines(text), id: \.self) { line in
@@ -306,6 +340,10 @@ struct ResultPanelView: View {
         guard flattened.count > limit else { return flattened }
         let index = flattened.index(flattened.startIndex, offsetBy: limit)
         return String(flattened[..<index]) + "..."
+    }
+
+    private func shouldShowExpandedOriginal(for result: TranslationResult) -> Bool {
+        result.originalText.count > 56 || result.originalText.contains("\n")
     }
 
     private func displayPronunciation(_ pronunciation: PronunciationVariant) -> String {

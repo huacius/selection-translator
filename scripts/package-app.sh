@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP_NAME="Selection Translator"
 BUNDLE_NAME="${APP_NAME}.app"
 BUNDLE_ID="com.sengo.selectiontranslator"
+APP_VERSION="$(tr -d '\n' < "${ROOT_DIR}/VERSION")"
 DIST_DIR="${ROOT_DIR}/dist"
 APP_DIR="${DIST_DIR}/${BUNDLE_NAME}"
 MACOS_DIR="${APP_DIR}/Contents/MacOS"
@@ -25,7 +26,7 @@ cp "${ROOT_DIR}/.build/release/SelectionTranslator" "${MACOS_DIR}/SelectionTrans
 chmod +x "${MACOS_DIR}/SelectionTranslator"
 cp "${ICON_ICNS}" "${RESOURCES_DIR}/AppIcon.icns"
 
-cat > "${APP_DIR}/Contents/Info.plist" <<'PLIST'
+cat > "${APP_DIR}/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -45,7 +46,7 @@ cat > "${APP_DIR}/Contents/Info.plist" <<'PLIST'
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
-  <string>0.1.0</string>
+  <string>${APP_VERSION}</string>
   <key>CFBundleVersion</key>
   <string>1</string>
   <key>LSMinimumSystemVersion</key>

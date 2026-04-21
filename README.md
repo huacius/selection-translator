@@ -4,12 +4,20 @@
 
 Selection Translator is a minimal macOS selection-translation app focused on English reading and learning.
 
+[GitHub Repository](https://github.com/huacius/selection-translator) · [Latest Release](https://github.com/huacius/selection-translator/releases/latest)
+
 ## Overview
 
 - Translate selected text from any macOS app with a global shortcut
 - Built for English reading, vocabulary lookup, pronunciation, and quick comprehension
 - Uses a configurable OpenAI-compatible LLM endpoint
 - Supports UK/US pronunciation display, favorites, and a lightweight popup card
+
+## Why This Project
+
+- Some in-browser or embedded input areas do not reliably expose selected text to existing tools
+- Built-in translation in large products is often either too basic for sentence-level translation or locked behind paid AI tiers
+- This project stays intentionally narrow: fast selection translation, pronunciation help, and a lightweight reading companion
 
 ## 中文介绍
 
@@ -46,6 +54,12 @@ chmod +x scripts/package-app.sh
 ./scripts/package-app.sh
 open "dist/Selection Translator.app"
 ```
+
+推荐安装方式：
+
+1. 从 [Latest Release](https://github.com/huacius/selection-translator/releases/latest) 下载 `.app.zip`
+2. 解压后把 `Selection Translator.app` 移到 `Applications`
+3. 首次打开后完成权限和接口配置
 
 GitHub 发布建议：
 
@@ -112,6 +126,12 @@ chmod +x scripts/package-app.sh
 ./scripts/package-app.sh
 open "dist/Selection Translator.app"
 ```
+
+Recommended installation:
+
+1. Download the `.app.zip` from [Latest Release](https://github.com/huacius/selection-translator/releases/latest)
+2. Unzip and move `Selection Translator.app` into `Applications`
+3. Launch it once and complete permission and API setup
 
 Suggested GitHub publishing workflow:
 
