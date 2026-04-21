@@ -12,7 +12,7 @@ final class ResultPanelController {
         let view = ResultPanelView(appState: appState)
         hostingView = NSHostingView(rootView: view)
         panel = ResultPanel(
-            contentRect: NSRect(origin: .zero, size: NSSize(width: 430, height: 240)),
+            contentRect: NSRect(origin: .zero, size: NSSize(width: 500, height: 260)),
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -109,8 +109,8 @@ final class ResultPanelController {
     private func fittingPanelSize() -> NSSize {
         hostingView.layoutSubtreeIfNeeded()
         let fitting = hostingView.fittingSize
-        let width = min(max(fitting.width, 360), 430)
-        let height = min(max(fitting.height, 150), 300)
+        let width = min(max(fitting.width, 400), 500)
+        let height = min(max(fitting.height, 170), 430)
         return NSSize(width: width, height: height)
     }
 }

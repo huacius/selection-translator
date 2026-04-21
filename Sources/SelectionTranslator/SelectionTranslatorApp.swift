@@ -59,7 +59,7 @@ struct SelectionTranslatorApp: App {
         Window("About", id: Self.aboutWindowID) {
             AboutView()
         }
-        .defaultSize(width: 360, height: 280)
+        .defaultSize(width: 420, height: 320)
         .commands {
             CommandGroup(replacing: .newItem) {}
         }
@@ -351,6 +351,8 @@ private struct AppIconBadge: View {
 }
 
 private struct AboutView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     private var appVersionText: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0"
     }
@@ -374,18 +376,26 @@ private struct AboutView: View {
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: 6) {
-                Link("GitHub · huacius/selection-translator", destination: URL(string: "https://github.com/huacius/selection-translator")!)
-                    .font(.system(size: 12, weight: .medium))
+                Link(destination: URL(string: "https://github.com/huacius/selection-translator")!) {
+                    Text("GitHub · huacius/selection-translator")
+                        .font(.system(size: 12, weight: .medium))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                }
                 Text("Any feedback: sengozhao@icloud.com")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer()
         }
         .padding(24)
+        .frame(minWidth: 420, minHeight: 320)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }

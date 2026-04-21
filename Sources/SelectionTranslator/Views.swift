@@ -17,6 +17,7 @@ struct ResultPanelView: View {
     private var cardBadgeBackground: Color { isDarkMode ? Color.white.opacity(0.08) : Color(red: 0.96, green: 0.97, blue: 0.99) }
     private var cardBorder: Color { isDarkMode ? Color.white.opacity(0.10) : Color.black.opacity(0.09) }
     private var accentBlue: Color { Color(red: 0.20, green: 0.36, blue: 0.86) }
+    private var contentScrollMaxHeight: CGFloat { 300 }
     private var displayedPronunciations: [PronunciationVariant] {
         guard let result = appState.latestResult else { return [] }
         if appState.settingsStore.settings.useIPA {
@@ -62,7 +63,8 @@ struct ResultPanelView: View {
                     permissionBanner
                 }
 
-                Group {
+                ScrollView(showsIndicators: true) {
+                    Group {
                     if let errorMessage = appState.errorMessage {
                         errorCard(message: errorMessage)
                     } else if let result = appState.latestResult {
@@ -70,8 +72,10 @@ struct ResultPanelView: View {
                     } else {
                         emptyState
                     }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: contentScrollMaxHeight, alignment: .topLeading)
 
                 HStack(spacing: 10) {
                     Text(appState.settingsStore.settings.shortcut.displayString)
@@ -95,7 +99,7 @@ struct ResultPanelView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 18)
         }
-        .frame(width: 430)
+        .frame(width: 500)
         .fixedSize(horizontal: false, vertical: true)
         .background(Color.clear)
         .onChange(of: appState.latestResult?.originalText) { _ in
@@ -167,14 +171,14 @@ struct ResultPanelView: View {
                 }
             }
 
+            if shouldShowExpandedOriginal(for: result) && isOriginalExpanded {
+                expandedOriginalBlock(result.originalText)
+            }
+
             if result.isEnglishTerm {
                 dictionaryMeaningBlock(result.translatedText)
             } else {
                 translationBlock(result.translatedText)
-            }
-
-            if shouldShowExpandedOriginal(for: result) && isOriginalExpanded {
-                expandedOriginalBlock(result.originalText)
             }
 
             if let notes = result.notes, !notes.isEmpty {
