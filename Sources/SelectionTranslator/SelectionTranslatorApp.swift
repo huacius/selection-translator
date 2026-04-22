@@ -52,7 +52,8 @@ struct SelectionTranslatorApp: App {
                 appState.registerHotkey()
             }
         }
-        .defaultSize(width: 640, height: 700)
+        .defaultSize(width: 640, height: 660)
+        .windowResizability(.contentSize)
 
         Window("Favorites", id: Self.favoritesWindowID) {
             FavoritesView(appState: appState)

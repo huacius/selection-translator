@@ -6,6 +6,8 @@ private let panelInnerCornerRadius: CGFloat = 10
 private let panelBadgeCornerRadius: CGFloat = 8
 private let settingsCardCornerRadius: CGFloat = 10
 private let settingsButtonCornerRadius: CGFloat = 8
+private let settingsPagePadding: CGFloat = 12
+private let settingsCardPadding: CGFloat = 12
 
 struct ResultPanelView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -523,11 +525,26 @@ struct SettingsView: View {
     private let permissionRefreshTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        settingsContent
+        .padding(settingsPagePadding)
+        .frame(width: 640, height: 660, alignment: .topLeading)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .onAppear {
+            appState.refreshPermissionStatus()
+        }
+        .onChange(of: settingsStore.settings.shortcut) { _ in
+            onShortcutChanged()
+        }
+        .onReceive(permissionRefreshTimer) { _ in
+            appState.refreshPermissionStatus()
+        }
+    }
+
+    private var settingsContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
             GroupBox {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("LLM 配置")
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionTitle("LLM 配置")
                     TextField("API Endpoint", text: binding(\.apiEndpoint))
                     SecureField("API Key", text: binding(\.apiKey))
                     TextField("Model", text: binding(\.model))
@@ -538,9 +555,8 @@ struct SettingsView: View {
             .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("快捷键")
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionTitle("快捷键")
                     ShortcutRecorder(shortcut: binding(\.shortcut)) { isRecording in
                         if isRecording {
                             HotKeyManager.shared.unregister()
@@ -558,16 +574,16 @@ struct SettingsView: View {
             .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("音标显示")
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionTitle("音标显示")
                     Toggle(isOn: binding(\.useIPA)) {
-                        VStack(alignment: .leading, spacing: 3) {
+                        VStack(alignment: .leading, spacing: 2) {
                             Text("使用 IPA 音标")
                                 .font(.system(size: 13, weight: .medium))
                             Text("开启后只显示词典查到的 IPA；关闭后显示更常见的英式/美式学习音标。")
                                 .font(.system(size: 12))
                                 .foregroundStyle(formSecondaryText)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                     .toggleStyle(.switch)
@@ -577,11 +593,10 @@ struct SettingsView: View {
             .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("权限状态")
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionTitle("权限状态")
 
-                    HStack {
+                    HStack(spacing: 8) {
                         Circle()
                             .fill(appState.hasAccessibilityPermission ? Color.green : Color.orange)
                             .frame(width: 10, height: 10)
@@ -592,8 +607,9 @@ struct SettingsView: View {
                     Text("应用需要读取当前其他应用中的选中文本，所以必须获得 macOS 辅助功能权限。")
                         .font(.system(size: 12))
                         .foregroundStyle(formSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    HStack {
+                    HStack(spacing: 8) {
                         Button("去授权") {
                             appState.requestAccessibilityAuthorization()
                         }
@@ -610,33 +626,22 @@ struct SettingsView: View {
             .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("使用说明")
-                        .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 6) {
+                    sectionTitle("使用说明")
                     Text("本应用面向英文阅读与学习场景。开启 IPA 时，只显示词典查到的标准音标；关闭 IPA 时，会显示更常见、更适合学习的英式和美式音标写法。")
                         .font(.system(size: 12))
                         .foregroundStyle(formSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text("任何建议可邮件给 sengozhao@icloud.com")
                         .font(.system(size: 12))
                         .foregroundStyle(formSecondaryText)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .groupBoxStyle(SettingsCardGroupBoxStyle())
-
-            Spacer(minLength: 0)
         }
-        .padding(20)
-        .frame(width: 640, height: 700, alignment: .topLeading)
-        .onAppear {
-            appState.refreshPermissionStatus()
-        }
-        .onChange(of: settingsStore.settings.shortcut) { _ in
-            onShortcutChanged()
-        }
-        .onReceive(permissionRefreshTimer) { _ in
-            appState.refreshPermissionStatus()
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private func binding<Value>(_ keyPath: WritableKeyPath<AppSettings, Value>) -> Binding<Value> {
@@ -645,6 +650,11 @@ struct SettingsView: View {
             set: { settingsStore.settings[keyPath: keyPath] = $0 }
         )
     }
+
+    private func sectionTitle(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 13, weight: .semibold))
+    }
 }
 
 private struct SettingsCardGroupBoxStyle: GroupBoxStyle {
@@ -652,7 +662,7 @@ private struct SettingsCardGroupBoxStyle: GroupBoxStyle {
         VStack(alignment: .leading, spacing: 0) {
             configuration.content
         }
-        .padding(16)
+        .padding(settingsCardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: settingsCardCornerRadius, style: .continuous))
