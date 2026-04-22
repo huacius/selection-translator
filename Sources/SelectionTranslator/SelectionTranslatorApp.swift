@@ -64,6 +64,7 @@ struct SelectionTranslatorApp: App {
             AboutView()
         }
         .defaultSize(width: 420, height: 320)
+        .windowResizability(.contentSize)
         .commands {
             CommandGroup(replacing: .newItem) {}
         }
