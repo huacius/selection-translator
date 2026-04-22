@@ -413,7 +413,7 @@ private struct AboutView: View {
                 Spacer()
             }
             .padding(24)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .frame(width: 380, height: 260, alignment: .top)
             .background(
                 RoundedRectangle(cornerRadius: aboutCardCornerRadius, style: .continuous)
                     .fill(cardBackground)
@@ -424,7 +424,7 @@ private struct AboutView: View {
             )
         }
         .padding(20)
-        .frame(minWidth: 420, minHeight: 320)
+        .frame(width: 420, height: 320)
         .background(pageBackground)
     }
 }
