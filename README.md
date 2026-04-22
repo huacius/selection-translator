@@ -41,7 +41,7 @@ Selection Translator is a minimal macOS selection-translation app focused on Eng
 运行：
 
 ```bash
-cd /Users/sengo/sengo/codex/selection-translator
+# in the repository root
 swift build
 swift run SelectionTranslator
 ```
@@ -49,7 +49,7 @@ swift run SelectionTranslator
 打包 `.app`：
 
 ```bash
-cd /Users/sengo/sengo/codex/selection-translator
+# in the repository root
 chmod +x scripts/package-app.sh
 ./scripts/package-app.sh
 open "dist/Selection Translator.app"
@@ -113,7 +113,7 @@ Architecture:
 Run locally:
 
 ```bash
-cd /Users/sengo/sengo/codex/selection-translator
+# in the repository root
 swift build
 swift run SelectionTranslator
 ```
@@ -121,7 +121,7 @@ swift run SelectionTranslator
 Build a local `.app` bundle:
 
 ```bash
-cd /Users/sengo/sengo/codex/selection-translator
+# in the repository root
 chmod +x scripts/package-app.sh
 ./scripts/package-app.sh
 open "dist/Selection Translator.app"
