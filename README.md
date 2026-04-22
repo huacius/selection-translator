@@ -55,6 +55,20 @@ chmod +x scripts/package-app.sh
 open "dist/Selection Translator.app"
 ```
 
+正式签名与 notarization：
+
+```bash
+# signed build
+export CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
+./scripts/package-app.sh
+
+# notarization
+export KEYCHAIN_PROFILE="selection-translator-notary"
+./scripts/notarize-app.sh
+```
+
+详细发布说明见 [`docs/release.md`](docs/release.md)。
+
 推荐安装方式：
 
 1. 从 [Latest Release](https://github.com/huacius/selection-translator/releases/latest) 下载 `.app.zip`
@@ -126,6 +140,18 @@ chmod +x scripts/package-app.sh
 ./scripts/package-app.sh
 open "dist/Selection Translator.app"
 ```
+
+Signed distribution and notarization:
+
+```bash
+export CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
+./scripts/package-app.sh
+
+export KEYCHAIN_PROFILE="selection-translator-notary"
+./scripts/notarize-app.sh
+```
+
+For the full release workflow, see [`docs/release.md`](docs/release.md).
 
 Recommended installation:
 

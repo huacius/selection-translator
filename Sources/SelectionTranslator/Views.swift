@@ -1,6 +1,11 @@
 import SwiftUI
 
 private let formSecondaryText = Color.secondary
+private let panelCornerRadius: CGFloat = 12
+private let panelInnerCornerRadius: CGFloat = 10
+private let panelBadgeCornerRadius: CGFloat = 8
+private let settingsCardCornerRadius: CGFloat = 10
+private let settingsButtonCornerRadius: CGFloat = 8
 
 struct ResultPanelView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -28,7 +33,7 @@ struct ResultPanelView: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: panelCornerRadius, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [
@@ -40,7 +45,7 @@ struct ResultPanelView: View {
                     )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    RoundedRectangle(cornerRadius: panelCornerRadius, style: .continuous)
                         .fill(
                             RadialGradient(
                                 colors: [
@@ -54,7 +59,7 @@ struct ResultPanelView: View {
                         )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    RoundedRectangle(cornerRadius: panelCornerRadius, style: .continuous)
                         .stroke(cardBorder, lineWidth: 0.9)
                 )
 
@@ -84,13 +89,13 @@ struct ResultPanelView: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(cardBadgeBackground)
-                        .clipShape(Capsule())
+                        .clipShape(RoundedRectangle(cornerRadius: panelBadgeCornerRadius, style: .continuous))
 
                     Spacer()
 
                     actionButton("arrow.clockwise") {
                         Task {
-                            await appState.translateCurrentSelection()
+                            await appState.refreshLatestTranslation()
                         }
                     }
                     .disabled(appState.isTranslating)
@@ -127,7 +132,7 @@ struct ResultPanelView: View {
         }
         .padding(12)
         .background(isDarkMode ? Color.orange.opacity(0.12) : Color.orange.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: panelInnerCornerRadius, style: .continuous))
     }
 
     private func errorCard(message: String) -> some View {
@@ -143,7 +148,7 @@ struct ResultPanelView: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardSoftSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: panelInnerCornerRadius, style: .continuous))
     }
 
     private func resultCard(_ result: TranslationResult) -> some View {
@@ -274,7 +279,7 @@ struct ResultPanelView: View {
                 .foregroundStyle(cardPrimaryText)
                 .frame(width: 28, height: 28)
                 .background(cardBadgeBackground)
-                .clipShape(Circle())
+                .clipShape(RoundedRectangle(cornerRadius: panelBadgeCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -301,7 +306,7 @@ struct ResultPanelView: View {
         }
         .padding(12)
         .background(cardSoftSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: panelInnerCornerRadius, style: .continuous))
     }
 
     private func dictionaryMeaningBlock(_ text: String) -> some View {
@@ -468,11 +473,11 @@ struct FavoritesView: View {
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: panelInnerCornerRadius, style: .continuous)
                 .fill(cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: panelInnerCornerRadius, style: .continuous)
                 .stroke(cardBorder, lineWidth: 0.8)
         )
     }
@@ -530,25 +535,27 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .groupBoxStyle(SettingsCardGroupBoxStyle())
 
-                GroupBox {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("快捷键")
-                            .font(.system(size: 14, weight: .semibold))
-                        ShortcutRecorder(shortcut: binding(\.shortcut)) { isRecording in
-                            if isRecording {
-                                HotKeyManager.shared.unregister()
-                            } else {
-                                onShortcutChanged()
-                            }
+            GroupBox {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("快捷键")
+                        .font(.system(size: 14, weight: .semibold))
+                    ShortcutRecorder(shortcut: binding(\.shortcut)) { isRecording in
+                        if isRecording {
+                            HotKeyManager.shared.unregister()
+                        } else {
+                            onShortcutChanged()
                         }
-                        .frame(height: 32)
+                    }
+                    .frame(height: 32)
                     Text("点击输入框后，直接按新的组合键。至少包含一个修饰键。")
                         .font(.system(size: 12))
                         .foregroundStyle(formSecondaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
                 VStack(alignment: .leading, spacing: 12) {
@@ -567,6 +574,7 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
                 VStack(alignment: .leading, spacing: 12) {
@@ -589,14 +597,17 @@ struct SettingsView: View {
                         Button("去授权") {
                             appState.requestAccessibilityAuthorization()
                         }
+                        .buttonStyle(SettingsActionButtonStyle())
 
                         Button("刷新状态") {
                             appState.refreshPermissionStatus()
                         }
+                        .buttonStyle(SettingsActionButtonStyle())
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             GroupBox {
                 VStack(alignment: .leading, spacing: 8) {
@@ -611,6 +622,7 @@ struct SettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .groupBoxStyle(SettingsCardGroupBoxStyle())
 
             Spacer(minLength: 0)
         }
@@ -632,5 +644,38 @@ struct SettingsView: View {
             get: { settingsStore.settings[keyPath: keyPath] },
             set: { settingsStore.settings[keyPath: keyPath] = $0 }
         )
+    }
+}
+
+private struct SettingsCardGroupBoxStyle: GroupBoxStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            configuration.content
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: settingsCardCornerRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: settingsCardCornerRadius, style: .continuous)
+                .stroke(Color.black.opacity(0.06), lineWidth: 0.8)
+        )
+    }
+}
+
+private struct SettingsActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 12, weight: .medium))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: settingsButtonCornerRadius, style: .continuous)
+                    .fill(Color(nsColor: .controlBackgroundColor))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: settingsButtonCornerRadius, style: .continuous)
+                    .stroke(Color.black.opacity(configuration.isPressed ? 0.12 : 0.08), lineWidth: 0.8)
+            )
     }
 }

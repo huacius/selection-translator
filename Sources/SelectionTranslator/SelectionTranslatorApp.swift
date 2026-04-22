@@ -11,6 +11,9 @@ private let darkMenuHeaderBackground = Color(red: 0.18, green: 0.18, blue: 0.20)
 private let darkMenuPrimaryText = Color.white
 private let darkMenuSecondaryText = Color(red: 0.70, green: 0.72, blue: 0.76)
 private let darkMenuChipBackground = Color.white.opacity(0.06)
+private let menuInnerCornerRadius: CGFloat = 10
+private let menuToastCornerRadius: CGFloat = 9
+private let aboutCardCornerRadius: CGFloat = 10
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -122,7 +125,7 @@ private struct MenuContentView: View {
                 .padding(.vertical, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    RoundedRectangle(cornerRadius: menuInnerCornerRadius, style: .continuous)
                         .fill(menuHeaderBackground)
                 )
 
@@ -233,7 +236,7 @@ private struct MenuContentView: View {
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: menuInnerCornerRadius, style: .continuous)
                     .fill(menuChipBackground)
             )
         }
@@ -298,7 +301,7 @@ private struct MenuContentView: View {
         .padding(.vertical, 7)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 13, style: .continuous)
+            RoundedRectangle(cornerRadius: menuInnerCornerRadius, style: .continuous)
                 .fill(menuChipBackground)
         )
     }
@@ -318,7 +321,7 @@ private struct MenuContentView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: menuInnerCornerRadius, style: .continuous)
                     .fill(menuChipBackground)
             )
         }
@@ -331,10 +334,10 @@ private struct AppIconBadge: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+            RoundedRectangle(cornerRadius: size * 0.18, style: .continuous)
                 .fill(Color(red: 0.965, green: 0.965, blue: 0.965))
                 .overlay(
-                    RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+                    RoundedRectangle(cornerRadius: size * 0.18, style: .continuous)
                         .stroke(Color.black.opacity(0.10), lineWidth: max(1, size * 0.03))
                 )
 
@@ -357,46 +360,70 @@ private struct AboutView: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0"
     }
 
+    private var pageBackground: Color {
+        colorScheme == .dark ? Color(red: 0.15, green: 0.16, blue: 0.17) : Color(nsColor: .windowBackgroundColor)
+    }
+
+    private var cardBackground: Color {
+        colorScheme == .dark ? Color.white.opacity(0.06) : Color.white
+    }
+
+    private var cardBorder: Color {
+        colorScheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)
+    }
+
     var body: some View {
-        VStack(spacing: 16) {
-            AppIconBadge(size: 58)
+        VStack {
+            VStack(spacing: 16) {
+                AppIconBadge(size: 58)
 
-            VStack(spacing: 6) {
-                Text("Selection Translator")
-                    .font(.system(size: 22, weight: .bold))
-                Text("极简的 macOS 划词翻译工具")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                Text("Version \(appVersionText)")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
-
-            Text("面向英文阅读与学习场景，支持划词翻译、音标与发音。")
-                .font(.system(size: 13))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-
-            VStack(spacing: 6) {
-                Link(destination: URL(string: "https://github.com/huacius/selection-translator")!) {
-                    Text("GitHub · huacius/selection-translator")
+                VStack(spacing: 6) {
+                    Text("Selection Translator")
+                        .font(.system(size: 22, weight: .bold))
+                    Text("极简的 macOS 划词翻译工具")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                    Text("Version \(appVersionText)")
                         .font(.system(size: 12, weight: .medium))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(.secondary)
                 }
-                Text("Any feedback: sengozhao@icloud.com")
-                    .font(.system(size: 12))
+
+                Text("面向英文阅读与学习场景，支持划词翻译、音标与发音。")
+                    .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-            }
 
-            Spacer()
+                VStack(spacing: 6) {
+                    Link(destination: URL(string: "https://github.com/huacius/selection-translator")!) {
+                        Text("GitHub · huacius/selection-translator")
+                            .font(.system(size: 12, weight: .medium))
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                    Text("Any feedback: sengozhao@icloud.com")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(
+                RoundedRectangle(cornerRadius: aboutCardCornerRadius, style: .continuous)
+                    .fill(cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: aboutCardCornerRadius, style: .continuous)
+                    .stroke(cardBorder, lineWidth: 0.8)
+            )
         }
-        .padding(24)
+        .padding(20)
         .frame(minWidth: 420, minHeight: 320)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(pageBackground)
     }
 }
 
@@ -416,7 +443,7 @@ private struct MenuToastView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
         .background(
-            Capsule()
+            RoundedRectangle(cornerRadius: menuToastCornerRadius, style: .continuous)
                 .fill(Color.black.opacity(0.82))
         )
     }

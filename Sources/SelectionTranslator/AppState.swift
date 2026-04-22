@@ -21,6 +21,7 @@ final class AppState: ObservableObject {
     private let dictionaryService = DictionaryService()
     private lazy var panelController = ResultPanelController(appState: self)
     private var menuToastWorkItem: DispatchWorkItem?
+    private var lastCapturedText: String?
 
     init(settingsStore: SettingsStore) {
         self.settingsStore = settingsStore
@@ -67,23 +68,29 @@ final class AppState: ObservableObject {
 
         do {
             let selectedText = try await selectionCaptureService.captureSelectedText()
-            async let translation = translationService.translate(selectedText, settings: settingsStore.settings)
-            async let dictionary = dictionaryService.lookup(for: selectedText)
-
-            let translationResponse = try await translation
-            let dictionaryEntry = await dictionary
-            let commonPronunciations = buildCommonPronunciations(from: translationResponse)
-
-            latestResult = TranslationResult(
-                originalText: translationResponse.originalText,
-                translatedText: translationResponse.translatedText,
-                sourceLanguage: translationResponse.sourceLanguage,
-                targetLanguage: settingsStore.settings.targetLanguage,
-                pronunciations: dictionaryEntry?.pronunciations ?? [],
-                commonPronunciations: commonPronunciations,
-                notes: translationResponse.notes
-            )
+            lastCapturedText = selectedText
+            try await translate(text: selectedText, anchorPoint: anchorPoint)
+        } catch {
+            errorMessage = error.localizedDescription
             panelController.show(near: anchorPoint)
+        }
+
+        isTranslating = false
+    }
+
+    func refreshLatestTranslation() async {
+        guard !isTranslating else { return }
+        guard let text = lastCapturedText ?? latestResult?.originalText else {
+            await translateCurrentSelection()
+            return
+        }
+
+        isTranslating = true
+        errorMessage = nil
+        let anchorPoint = NSEvent.mouseLocation
+
+        do {
+            try await translate(text: text, anchorPoint: anchorPoint)
         } catch {
             errorMessage = error.localizedDescription
             panelController.show(near: anchorPoint)
@@ -219,6 +226,26 @@ final class AppState: ObservableObject {
                 self?.refreshPermissionStatus()
             }
         }
+    }
+
+    private func translate(text: String, anchorPoint: NSPoint) async throws {
+        async let translation = translationService.translate(text, settings: settingsStore.settings)
+        async let dictionary = dictionaryService.lookup(for: text)
+
+        let translationResponse = try await translation
+        let dictionaryEntry = await dictionary
+        let commonPronunciations = buildCommonPronunciations(from: translationResponse)
+
+        latestResult = TranslationResult(
+            originalText: translationResponse.originalText,
+            translatedText: translationResponse.translatedText,
+            sourceLanguage: translationResponse.sourceLanguage,
+            targetLanguage: settingsStore.settings.targetLanguage,
+            pronunciations: dictionaryEntry?.pronunciations ?? [],
+            commonPronunciations: commonPronunciations,
+            notes: translationResponse.notes
+        )
+        panelController.show(near: anchorPoint)
     }
 
     private func buildCommonPronunciations(from response: TranslationResponse) -> [PronunciationVariant] {
